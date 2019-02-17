@@ -1,8 +1,8 @@
 name: xdh_call
 description: 通话状态监听
-version: 0.0.1
+version: 0.0.2
 author: sun <titiyes@126.com>
-homepage: http://xdh-syy.com
+homepage: https://github.com/cys138138/xdh_call
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"

@@ -1,3 +1,7 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* 实现功能
+
+## 0.0.2
+
+* 更新readme
