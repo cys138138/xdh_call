@@ -1,10 +1,12 @@
 package com.xdhsyy.xdhcall;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.telephony.TelephonyManager;
 
 import io.flutter.plugin.common.EventChannel;
@@ -52,7 +54,22 @@ public class XdhCallPlugin implements MethodCallHandler, EventChannel.StreamHand
      */
     @Override
     public void onMethodCall(MethodCall call, Result result) {
-        if (call.method.equals("getPlatformVersion")) {
+
+        /**
+         * 拨打电话
+         */
+        if (call.method.equals("call")) {
+            String phone = call.argument("phone_number");
+            boolean type = call.argument("is_confirm");
+            System.out.println(type);
+            //直接调用不用确认拨打
+            if(type){
+                callPhone(phone,result);
+            }else{
+                callNoComfirePhone(phone,result);
+            }
+            return;
+        }else if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
         } else {
             result.notImplemented();
@@ -124,5 +141,39 @@ public class XdhCallPlugin implements MethodCallHandler, EventChannel.StreamHand
                 }
             }
         };
+    }
+
+    /**
+     * 拨打电话（直接拨打电话）
+     * @param phoneNum 电话号码
+     */
+    public void callNoComfirePhone(String phoneNum,Result result){
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        Uri data = Uri.parse("tel:" + phoneNum);
+        intent.setData(data);
+        Activity activity = mRegistrar.activity();
+        if (activity == null) {
+            result.error("NO_ACTIVITY", "requires a foreground activity.", null);
+            return;
+        }
+        activity.startActivity(intent);
+    }
+
+    /**
+     * 拨打电话（跳转到拨号界面，用户手动点击拨打）
+     *
+     * @param phoneNum 电话号码
+     */
+    public void callPhone(String phoneNum,Result result) {
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        Uri data = Uri.parse("tel:" + phoneNum);
+        intent.setData(data);
+
+        Activity activity = mRegistrar.activity();
+        if (activity == null) {
+            result.error("NO_ACTIVITY", "requires a foreground activity.", null);
+            return;
+        }
+        activity.startActivity(intent);
     }
 }

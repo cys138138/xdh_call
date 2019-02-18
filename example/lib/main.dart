@@ -61,7 +61,15 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Column(children: <Widget>[
+            Text('Running on: $_platformVersion\n'),
+            FlatButton(onPressed: (){
+              XdhCall.callphone("call",is_confirm:false,phone_number:'10086');
+            },child: new Text("无需确认方式拨打电话"),),
+            FlatButton(onPressed: (){
+              XdhCall.callphone("call",is_confirm:true,phone_number:'10086');
+            },child: new Text("需确认方式拨打电话"),),
+          ],)
         ),
       ),
     );

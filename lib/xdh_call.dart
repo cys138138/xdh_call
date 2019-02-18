@@ -10,6 +10,19 @@ class XdhCall {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
+
+  static Future<void> callphone(String str, {
+    bool is_confirm,
+    String phone_number,
+  }) async {
+    assert(phone_number != null);
+    assert(is_confirm != null);
+    await _channel.invokeMethod('call',<String, Object>{
+      'is_confirm': is_confirm,
+      'phone_number': phone_number,
+    });
+  }
+
   XdhCall(Function _onEvent,Function _onError){
     print("初始化监听事件开始");
     eventChannel.receiveBroadcastStream().listen(_onEvent, onError: _onError);
