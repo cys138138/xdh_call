@@ -61,4 +61,11 @@ class XdhCall {
     });
     return result;
   }
+  
+  ///获取唯一设备码
+  ///
+  static Future<String> getUniqueId() async {
+    final String result = await _channel.invokeMethod('getUniqueId');
+    return result;
+  }
 }

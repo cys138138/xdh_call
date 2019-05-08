@@ -88,9 +88,18 @@ public class XdhCallPlugin implements MethodCallHandler, EventChannel.StreamHand
         }
         else if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
-        } else {
+        }
+        else if (call.method.equals("getUniqueId")) {
+            getUniqueId(result);
+        }
+        else {
             result.notImplemented();
         }
+    }
+
+    private void getUniqueId(Result result) {
+        String uniqueId = DeviceUtils.getUniqueId(mRegistrar.activeContext());
+        result.success(uniqueId);
     }
 
     private void sendSms(String phone_number,String sms_content, Result result) {

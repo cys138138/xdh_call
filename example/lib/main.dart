@@ -59,6 +59,13 @@ class _MyAppState extends State<MyApp> {
         });
     }
   }
+  
+  _getUniqueId() async {
+    String str = await XdhCall.getUniqueId();
+    setState(() {
+	  _platformVersion = str;
+	});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +89,9 @@ class _MyAppState extends State<MyApp> {
             FlatButton(onPressed: (){
               _sendsm();
             },child: new Text("发送短信"),),
+            FlatButton(onPressed: (){
+                    _getUniqueId();
+            },child: new Text("获取唯一设备id"),),
 
           ],)
         ),
