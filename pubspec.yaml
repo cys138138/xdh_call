@@ -1,6 +1,6 @@
 name: xdh_call
 description: 通话状态监听,调用系统拨打电话无需二次确认
-version: 0.0.2
+version: 0.0.5
 author: sun <titiyes@126.com>
 homepage: https://github.com/cys138138/xdh_call
 
