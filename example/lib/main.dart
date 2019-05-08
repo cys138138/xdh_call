@@ -52,6 +52,13 @@ class _MyAppState extends State<MyApp> {
       _platformVersion = platformVersion;
     });
   }
+  _sendsm() async {
+    if(await XdhCall.sendSms(phone_number: "13252033403",sms_content: "测试啦啦啦啦")){
+      setState(() {
+          _platformVersion = "发送成功";
+        });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +76,13 @@ class _MyAppState extends State<MyApp> {
             FlatButton(onPressed: (){
               XdhCall.callphone("call",is_confirm:true,phone_number:'10086');
             },child: new Text("需确认方式拨打电话"),),
+            FlatButton(onPressed: (){
+              XdhCall.endCall();
+            },child: new Text("挂断电话"),),
+            FlatButton(onPressed: (){
+              _sendsm();
+            },child: new Text("发送短信"),),
+
           ],)
         ),
       ),

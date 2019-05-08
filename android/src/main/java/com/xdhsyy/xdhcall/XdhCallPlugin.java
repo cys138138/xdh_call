@@ -1,13 +1,17 @@
 package com.xdhsyy.xdhcall;
 
 import android.app.Activity;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.RemoteException;
+import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
@@ -15,6 +19,9 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+
+import static android.content.Context.TELEPHONY_SERVICE;
+import com.android.internal.telephony.ITelephony;
 
 /**
  * MethodCallHandler实现MethodChannel的Flutter App调用Native APIs；
@@ -69,11 +76,34 @@ public class XdhCallPlugin implements MethodCallHandler, EventChannel.StreamHand
                 callNoComfirePhone(phone,result);
             }
             return;
-        }else if (call.method.equals("getPlatformVersion")) {
+        }
+        else if (call.method.equals("endCall")) {
+            endCall(result);
+        }
+
+        else if (call.method.equals("sendSms")) {
+            String phone = call.argument("phone_number");
+            String sms_content = call.argument("sms_content");
+            sendSms(phone,sms_content,result);
+        }
+        else if (call.method.equals("getPlatformVersion")) {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
         } else {
             result.notImplemented();
         }
+    }
+
+    private void sendSms(String phone_number,String sms_content, Result result) {
+        SmsManager smsManager = SmsManager.getDefault();
+        if(sms_content.length()>70) {
+            List<String> contents = smsManager.divideMessage(sms_content);
+            for(String sms:contents) {
+                smsManager.sendTextMessage(phone_number,null,sms,null,null);
+            }
+        } else {
+            smsManager.sendTextMessage(phone_number,null,sms_content,null,null);
+        }
+        result.success(true);
     }
 
     /**
@@ -121,7 +151,7 @@ public class XdhCallPlugin implements MethodCallHandler, EventChannel.StreamHand
                     String extraIncomingNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
                     events.success("{'type':'outgoning_call','phone':'" + extraIncomingNumber + "'}");
                 } else {//来电(存在以下三种情况)
-                    TelephonyManager tm = (TelephonyManager) context.getSystemService(Service.TELEPHONY_SERVICE);
+                    TelephonyManager tm = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
                     // 获取电话号码
                     String extraIncomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
                     switch (tm.getCallState()) {
@@ -175,5 +205,42 @@ public class XdhCallPlugin implements MethodCallHandler, EventChannel.StreamHand
             return;
         }
         activity.startActivity(intent);
+    }
+
+    /**
+     * 挂断电话
+     * @return
+     */
+    public void endCall(Result result) {
+        try {
+            getITelephony(mRegistrar.activeContext()).endCall();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        result.success(true);
+    }
+
+    public static ITelephony getITelephony(Context context) {
+        TelephonyManager mTelephonyManager = (TelephonyManager) context
+                .getSystemService(TELEPHONY_SERVICE);
+        Class c = TelephonyManager.class;
+        Method getITelephonyMethod = null;
+        try {
+            getITelephonyMethod = c.getDeclaredMethod("getITelephony",
+                    (Class[]) null); // 获取声明的方法
+            getITelephonyMethod.setAccessible(true);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        try {
+            ITelephony iTelephony = (ITelephony) getITelephonyMethod.invoke(
+                    mTelephonyManager, (Object[]) null); // 获取实例
+            return iTelephony;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
