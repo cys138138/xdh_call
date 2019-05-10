@@ -67,6 +67,14 @@ class _MyAppState extends State<MyApp> {
 	});
   }
 
+  _getCallLog() async {
+    String str = await XdhCall.getCallLogByWhere("NUMBER = 10086 and DURATION > 0","DATE desc");
+    print(str);
+    setState(() {
+      _platformVersion = str;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -92,6 +100,9 @@ class _MyAppState extends State<MyApp> {
             FlatButton(onPressed: (){
                     _getUniqueId();
             },child: new Text("获取唯一设备id"),),
+            FlatButton(onPressed: (){
+              _getCallLog();
+            },child: new Text("获取记录"),),
 
           ],)
         ),

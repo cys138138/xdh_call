@@ -68,4 +68,21 @@ class XdhCall {
     final String result = await _channel.invokeMethod('getUniqueId');
     return result;
   }
+
+  ///获取通话记录
+  ///
+  static Future<String> getCallLog() async {
+    final String result = await _channel.invokeMethod('getCallLog');
+    return result;
+  }
+
+  ///获取通话记录
+  ///
+  static Future<String> getCallLogByWhere(String whereStr,String orderStr) async {
+    final String result = await _channel.invokeMethod('getCallLogByWhere',<String, Object>{
+      'whereStr': whereStr,
+      'orderStr': orderStr,
+    });
+    return result;
+  }
 }

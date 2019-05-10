@@ -23,6 +23,10 @@ import io.flutter.plugin.common.PluginRegistry.Registrar;
 import static android.content.Context.TELEPHONY_SERVICE;
 import com.android.internal.telephony.ITelephony;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * MethodCallHandler实现MethodChannel的Flutter App调用Native APIs；
  * EventChannel.StreamHandler实现EventChannel的Native调用Flutter App。
@@ -92,9 +96,63 @@ public class XdhCallPlugin implements MethodCallHandler, EventChannel.StreamHand
         else if (call.method.equals("getUniqueId")) {
             getUniqueId(result);
         }
+
+        else if (call.method.equals("getCallLog")) {
+            getCallLog(result);
+        }
+        else if (call.method.equals("getCallLogByWhere")) {
+            String whereStr = call.argument("whereStr");
+            String orderStr = call.argument("orderStr");
+            getCallLogByWhere(result,whereStr,orderStr);
+        }
         else {
             result.notImplemented();
         }
+    }
+
+    private void getCallLog(Result result) {
+        ContactsMsgUtils contactsMsgUtils = new ContactsMsgUtils();
+        List<CallLogInfo> infos = contactsMsgUtils.getCallLog(mRegistrar.activeContext());
+
+        JSONArray array = new JSONArray();
+        try {
+            for (CallLogInfo i: infos) {
+                JSONObject jsonObject = new JSONObject();
+
+                    jsonObject.put("number",i.number);
+                    jsonObject.put("type",i.type);
+                    jsonObject.put("date",i.date);
+                    jsonObject.put("duraition",i.duraition);
+                    array.put(jsonObject);
+
+                    System.out.println(i.number);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        result.success(array.toString());
+    }
+    private void getCallLogByWhere(Result result,String whereStr,String order) {
+        ContactsMsgUtils contactsMsgUtils = new ContactsMsgUtils();
+        List<CallLogInfo> infos = contactsMsgUtils.getCallLogByWhere(mRegistrar.activeContext(),whereStr,order);
+
+        JSONArray array = new JSONArray();
+        try {
+            for (CallLogInfo i: infos) {
+                JSONObject jsonObject = new JSONObject();
+
+                    jsonObject.put("number",i.number);
+                    jsonObject.put("type",i.type);
+                    jsonObject.put("date",i.date);
+                    jsonObject.put("duraition",i.duraition);
+                    array.put(jsonObject);
+
+                    System.out.println(i.number);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        result.success(array.toString());
     }
 
     private void getUniqueId(Result result) {
